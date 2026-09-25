@@ -1,397 +1,305 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>10 Step Inventory</title>
 
-    <!-- Add PWA Links -->
+    <!-- PWA Links -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#2c3e50">
     <link rel="apple-touch-icon" href="./pawappicon.png">
 
     <style>
-        /* Keep your existing CSS styles here */
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            border-bottom: 2px solid #2c3e50;
+            padding-bottom: 10px;
+        }
+        .question-block {
+            background: #ffffff;
+            border-radius: 6px;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        label {
+            font-weight: bold;
+            color: #34495e;
+            display: block;
+            margin-bottom: 8px;
+        }
+        textarea {
+            width: 100%;
+            height: 80px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-family: inherit;
+            font-size: 14px;
+            resize: vertical;
+        }
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        .btn:hover {
+            background-color: #219150;
+        }
+        .copy-btn {
+            background-color: #2980b9;
+        }
+        .copy-btn:hover {
+            background-color: #1f6391;
+        }
+        .reset-btn {
+            background-color: #e74c3c;
+            margin-top: 10px;
+        }
+        .reset-btn:hover {
+            background-color: #c0392b;
+        }
+        .inventory-item {
+            background: #ffffff;
+            border-radius: 6px;
+            padding: 15px 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .question {
+            font-weight: bold;
+            color: #34495e;
+            margin-bottom: 8px;
+        }
+        .answer {
+            color: #555;
+            white-space: pre-wrap;
+            background: #f0f4f8;
+            padding: 10px;
+            border-left: 4px solid #3498db;
+            border-radius: 4px;
+        }
+        #results-section {
+            display: none;
+        }
     </style>
 </head>
-
 <body>
-    <!DOCTYPE html>
-    <html lang="en">
 
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>10 Step Inventory</title>
-        <style>
-            body {
-                font-family: Arial, sans-serif;
-                max-width: 800px;
-                margin: 40px auto;
-                padding: 20px;
-                background-color: #f9f9f9;
-                color: #333;
-            }
+    <h1>10 Step Inventory</h1>
 
-            h1 {
-                text-align: center;
-                color: #2c3e50;
-                border-bottom: 2px solid #2c3e50;
-                padding-bottom: 10px;
-            }
-
-            .question-block {
-                background: #ffffff;
-                border-radius: 6px;
-                padding: 15px 20px;
-                margin-bottom: 20px;
-                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            }
-
-            label {
-                font-weight: bold;
-                color: #34495e;
-                display: block;
-                margin-bottom: 8px;
-            }
-
-            textarea {
-                width: 100%;
-                height: 80px;
-                padding: 10px;
-                border: 1px solid #ccc;
-                border-radius: 4px;
-                box-sizing: border-box;
-                font-family: inherit;
-                font-size: 14px;
-                resize: vertical;
-            }
-
-            .btn {
-                display: block;
-                width: 100%;
-                padding: 12px;
-                background-color: #27ae60;
-                color: white;
-                border: none;
-                border-radius: 6px;
-                font-size: 16px;
-                font-weight: bold;
-                cursor: pointer;
-                margin-top: 20px;
-            }
-
-            .btn:hover {
-                background-color: #219150;
-            }
-
-            .copy-btn {
-                background-color: #2980b9;
-            }
-
-            .copy-btn:hover {
-                background-color: #1f6391;
-            }
-
-            .reset-btn {
-                background-color: #e74c3c;
-                margin-top: 10px;
-            }
-
-            .reset-btn:hover {
-                background-color: #c0392b;
-            }
-
-            .inventory-item {
-                background: #ffffff;
-                border-radius: 6px;
-                padding: 15px 20px;
-                margin-bottom: 15px;
-                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            }
-
-            .question {
-                font-weight: bold;
-                color: #34495e;
-                margin-bottom: 8px;
-            }
-
-            .answer {
-                color: #555;
-                white-space: pre-wrap;
-                background: #f0f4f8;
-                padding: 10px;
-                border-left: 4px solid #3498db;
-                border-radius: 4px;
-            }
-
-            #results-section {
-                display: none;
-            }
-        </style>
-    </head>
-
-    <body>
-
-        <h1>10 Step Inventory</h1>
-
-        <!-- FORM SECTION -->
-        <form id="inventory-form">
-            <div class="question-block">
-                <label for="q1">1. Were we selfish, dishonest, afraid, resentful?</label>
-                <textarea id="q1" placeholder="Type your response here..."></textarea>
-            </div>
-
-            <div class="question-block">
-                <label for="q2">2. Do we owe an apology?</label>
-                <textarea id="q2" placeholder="Type your response here..."></textarea>
-            </div>
-
-            <div class="question-block">
-                <label for="q3">3. Have we kept something to ourselves which should be discussed with another person at
-                    once?</label>
-                <textarea id="q3" placeholder="Type your response here..."></textarea>
-            </div>
-
-            <div class="question-block">
-                <label for="q4">4. Were we kind and loving toward all?</label>
-                <textarea id="q4" placeholder="Type your response here..."></textarea>
-            </div>
-
-            <div class="question-block">
-                <label for="q5">5. What could we have done better?</label>
-                <textarea id="q5" placeholder="Type your response here..."></textarea>
-            </div>
-
-            <div class="question-block">
-                <label for="q6">6. Or were we thinking of ourselves most of the time?</label>
-                <textarea id="q6" placeholder="Type your response here..."></textarea>
-            </div>
-
-            <div class="question-block">
-                <label for="q7">7. Or were we thinking what we could do for others, of what we could pack into the
-                    stream of
-                    life?</label>
-                <textarea id="q7" placeholder="Type your response here..."></textarea>
-            </div>
-
-            <div class="question-block">
-                <label for="q8">8. What defects were in play?</label>
-                <textarea id="q8" placeholder="Type your response here..."></textarea>
-            </div>
-
-            <div class="question-block">
-                <label for="q9">9. Assets:</label>
-                <textarea id="q9" placeholder="Type your response here..."></textarea>
-            </div>
-
-            <div class="question-block">
-                <label for="q10">10. Did I ask for God’s forgiveness and what corrective measures should be
-                    taken?</label>
-                <textarea id="q10" placeholder="Type your response here..."></textarea>
-            </div>
-
-            <button type="button" class="btn" onclick="saveAnswers()">Save Answers</button>
-        </form>
-
-        <!-- RESULTS SECTION -->
-        <div id="results-section">
-            <div id="results-list"></div>
-            <button id="copy-btn" class="btn copy-btn" onclick="copyToClipboard()">Copy to Clipboard</button>
-            <button id="reset-btn" class="btn reset-btn" onclick="resetForm()">Start New Inventory</button>
+    <!-- FORM SECTION -->
+    <form id="inventory-form">
+        <div class="question-block">
+            <label for="q1">1. Were we selfish, dishonest, afraid, resentful?</label>
+            <textarea id="q1" placeholder="Type your response here..."></textarea>
         </div>
 
-        <script>
-            const questions = [
-                "1. Were we selfish, dishonest, afraid, resentful?",
-                "2. Do we owe an apology?",
-                "3. Have we kept something to ourselves which should be discussed with another person at once?",
-                "4. Were we kind and loving toward all?",
-                "5. What could we have done better?",
-                "6. Or were we thinking of ourselves most of the time?",
-                "7. Or were we thinking what we could do for others, of what we could pack into the stream of life?",
-                "8. What defects were in play?",
-                "9. Assets:",
-                "10. Did I ask for God’s forgiveness and what corrective measures should be taken?"
-            ];
+        <div class="question-block">
+            <label for="q2">2. Do we owe an apology?</label>
+            <textarea id="q2" placeholder="Type your response here..."></textarea>
+        </div>
 
-            let formattedPlainText = "";
+        <div class="question-block">
+            <label for="q3">3. Have we kept something to ourselves which should be discussed with another person at once?</label>
+            <textarea id="q3" placeholder="Type your response here..."></textarea>
+        </div>
 
-            // --- ADD THE IN-MEMORY PRESERVATION CODE HERE ---
-            const formData = {};
+        <div class="question-block">
+            <label for="q4">4. Were we kind and loving toward all?</label>
+            <textarea id="q4" placeholder="Type your response here..."></textarea>
+        </div>
 
-            function preserveInMemory() {
-                for (let i = 1; i <= 10; i++) {
-                    const el = document.getElementById(`q${i}`);
-                    if (el) formData[`q${i}`] = el.value;
+        <div class="question-block">
+            <label for="q5">5. What could we have done better?</label>
+            <textarea id="q5" placeholder="Type your response here..."></textarea>
+        </div>
+
+        <div class="question-block">
+            <label for="q6">6. Or were we thinking of ourselves most of the time?</label>
+            <textarea id="q6" placeholder="Type your response here..."></textarea>
+        </div>
+
+        <div class="question-block">
+            <label for="q7">7. Or were we thinking what we could do for others, of what we could pack into the stream of life?</label>
+            <textarea id="q7" placeholder="Type your response here..."></textarea>
+        </div>
+
+        <div class="question-block">
+            <label for="q8">8. What defects were in play?</label>
+            <textarea id="q8" placeholder="Type your response here..."></textarea>
+        </div>
+
+        <div class="question-block">
+            <label for="q9">9. Assets:</label>
+            <textarea id="q9" placeholder="Type your response here..."></textarea>
+        </div>
+
+        <div class="question-block">
+            <label for="q10">10. Did I ask for God’s forgiveness and what corrective measures should be taken?</label>
+            <textarea id="q10" placeholder="Type your response here..."></textarea>
+        </div>
+
+        <button type="button" class="btn" onclick="saveAnswers()">Save Answers</button>
+    </form>
+
+    <!-- RESULTS SECTION -->
+    <div id="results-section">
+        <div id="results-list"></div>
+        <button id="copy-btn" class="btn copy-btn" onclick="copyToClipboard()">Copy to Clipboard</button>
+        <button id="reset-btn" class="btn reset-btn" onclick="resetForm()">Start New Inventory</button>
+    </div>
+
+    <script>
+        const questions = [
+            "1. Were we selfish, dishonest, afraid, resentful?",
+            "2. Do we owe an apology?",
+            "3. Have we kept something to ourselves which should be discussed with another person at once?",
+            "4. Were we kind and loving toward all?",
+            "5. What could we have done better?",
+            "6. Or were we thinking of ourselves most of the time?",
+            "7. Or were we thinking what we could do for others, of what we could pack into the stream of life?",
+            "8. What defects were in play?",
+            "9. Assets:",
+            "10. Did I ask for God’s forgiveness and what corrective measures should be taken?"
+        ];
+
+        let formattedPlainText = "";
+
+        // Helper functions for safe LocalStorage
+        function safeSetItem(key, value) {
+            try { localStorage.setItem(key, value); } catch (e) {}
+        }
+
+        function safeGetItem(key) {
+            try { return localStorage.getItem(key); } catch (e) { return null; }
+        }
+
+        function restoreAnswers() {
+            for (let i = 1; i <= 10; i++) {
+                const textarea = document.getElementById(`q${i}`);
+                const savedValue = safeGetItem(`inventory_q${i}`);
+                if (savedValue !== null) {
+                    textarea.value = savedValue;
                 }
+                textarea.removeEventListener('input', saveHandler);
+                textarea.addEventListener('input', saveHandler);
+            }
+        }
+
+        function saveHandler(e) {
+            safeSetItem(`inventory_${e.target.id}`, e.target.value);
+        }
+
+        window.addEventListener('pageshow', restoreAnswers);
+        window.addEventListener('DOMContentLoaded', restoreAnswers);
+
+        function saveAnswers() {
+            const form = document.getElementById("inventory-form");
+            const resultsSection = document.getElementById("results-section");
+            const resultsList = document.getElementById("results-list");
+
+            resultsList.innerHTML = "";
+            formattedPlainText = "10 Step Inventory\n\n";
+
+            for (let i = 0; i < questions.length; i++) {
+                const textareaValue = document.getElementById(`q${i + 1}`).value.trim();
+                const answerText = textareaValue === "" ? "No answer provided." : textareaValue;
+
+                const itemDiv = document.createElement("div");
+                itemDiv.className = "inventory-item";
+
+                const qDiv = document.createElement("div");
+                qDiv.className = "question";
+                qDiv.textContent = questions[i];
+
+                const aDiv = document.createElement("div");
+                aDiv.className = "answer";
+                aDiv.textContent = answerText;
+
+                itemDiv.appendChild(qDiv);
+                itemDiv.appendChild(aDiv);
+                resultsList.appendChild(itemDiv);
+
+                formattedPlainText += `${questions[i]}\nAnswer: ${answerText}\n\n`;
             }
 
-            function restoreFromMemory() {
-                for (let i = 1; i <= 10; i++) {
-                    const el = document.getElementById(`q${i}`);
-                    if (el && formData[`q${i}`] !== undefined) {
-                        el.value = formData[`q${i}`];
-                    }
-                }
-            }
+            form.style.display = "none";
+            resultsSection.style.display = "block";
+            window.scrollTo(0, 0);
+        }
 
-            // Save input values as the user types
-            window.addEventListener('DOMContentLoaded', () => {
-                for (let i = 1; i <= 10; i++) {
-                    const textarea = document.getElementById(`q${i}`);
-                    textarea.addEventListener('input', preserveInMemory);
-                }
-            });
+        function copyToClipboard() {
+            const btn = document.getElementById("copy-btn");
 
-            // Restore values if screen changes orientation or resizes
-            window.addEventListener('resize', preserveInMemory);
-            window.matchMedia("(orientation: portrait)").addEventListener("change", restoreFromMemory);
-            window.matchMedia("(orientation: landscape)").addEventListener("change", restoreFromMemory);
-            // ------------------------------------------------
-
-            // Helper to safely write to storage without crashing in Private/Incognito Mode
-            function safeSetItem(key, value) {
-                try {
-                    localStorage.setItem(key, value);
-                } catch (e) {
-                    console.warn('localStorage is unavailable or restricted:', e);
-                }
-            }
-
-            // Helper to safely read from storage
-            function safeGetItem(key) {
-                try {
-                    return localStorage.getItem(key);
-                } catch (e) {
-                    return null;
-                }
-            }
-
-            function restoreAnswers() {
-                for (let i = 1; i <= 10; i++) {
-                    const textarea = document.getElementById(`q${i}`);
-                    const savedValue = safeGetItem(`inventory_q${i}`);
-
-                    if (savedValue !== null) {
-                        textarea.value = savedValue;
-                    }
-
-                    // Remove old listeners before adding to prevent duplicates
-                    textarea.removeEventListener('input', saveHandler);
-                    textarea.addEventListener('input', saveHandler);
-                }
-            }
-
-            function saveHandler(e) {
-                const id = e.target.id;
-                safeSetItem(`inventory_${id}`, e.target.value);
-            }
-
-            // 'pageshow' handles iOS Safari back-forward cache and orientation re-renders better than DOMContentLoaded alone
-            window.addEventListener('pageshow', restoreAnswers);
-            window.addEventListener('DOMContentLoaded', restoreAnswers);
-
-            function saveAnswers() {
-                const form = document.getElementById("inventory-form");
-                const resultsSection = document.getElementById("results-section");
-                const resultsList = document.getElementById("results-list");
-
-                resultsList.innerHTML = "";
-                formattedPlainText = "10 Step Inventory\n\n";
-
-                for (let i = 0; i < questions.length; i++) {
-                    const textareaValue = document.getElementById(`q${i + 1}`).value.trim();
-                    const answerText = textareaValue === "" ? "No answer provided." : textareaValue;
-
-                    const itemDiv = document.createElement("div");
-                    itemDiv.className = "inventory-item";
-
-                    const qDiv = document.createElement("div");
-                    qDiv.className = "question";
-                    qDiv.textContent = questions[i];
-
-                    const aDiv = document.createElement("div");
-                    aDiv.className = "answer";
-                    aDiv.textContent = answerText;
-
-                    itemDiv.appendChild(qDiv);
-                    itemDiv.appendChild(aDiv);
-                    resultsList.appendChild(itemDiv);
-
-                    formattedPlainText += `${questions[i]}\nAnswer: ${answerText}\n\n`;
-                }
-
-                form.style.display = "none";
-                resultsSection.style.display = "block";
-                window.scrollTo(0, 0);
-            }
-
-            function copyToClipboard() {
-                const btn = document.getElementById("copy-btn");
-
-                if (navigator.clipboard && window.isSecureContext) {
-                    navigator.clipboard.writeText(formattedPlainText).then(() => {
-                        showSuccess();
-                    }).catch(() => {
-                        fallbackCopy();
-                    });
-                } else {
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(formattedPlainText).then(() => {
+                    showSuccess();
+                }).catch(() => {
                     fallbackCopy();
-                }
-
-                function fallbackCopy() {
-                    const tempTextArea = document.createElement("textarea");
-                    tempTextArea.value = formattedPlainText;
-
-                    tempTextArea.style.position = "fixed";
-                    tempTextArea.style.top = "0";
-                    tempTextArea.style.left = "0";
-                    tempTextArea.style.opacity = "0";
-
-                    document.body.appendChild(tempTextArea);
-                    tempTextArea.focus();
-                    tempTextArea.select();
-
-                    try {
-                        const successful = document.execCommand('copy');
-                        if (successful) {
-                            showSuccess();
-                        } else {
-                            alert("Please manually select and copy the text.");
-                        }
-                    } catch (err) {
-                        alert("Copying not supported on this browser.");
-                    }
-
-                    document.body.removeChild(tempTextArea);
-                }
-
-                function showSuccess() {
-                    btn.textContent = "Copied to Clipboard!";
-                    setTimeout(() => {
-                        btn.textContent = "Copy to Clipboard";
-                    }, 2000);
-                }
+                });
+            } else {
+                fallbackCopy();
             }
 
-            function resetForm() {
-                for (let i = 1; i <= 10; i++) {
-                    try {
-                        localStorage.removeItem(`inventory_q${i}`);
-                    } catch (e) { }
-                    document.getElementById(`q${i}`).value = "";
+            function fallbackCopy() {
+                const tempTextArea = document.createElement("textarea");
+                tempTextArea.value = formattedPlainText;
+                tempTextArea.style.position = "fixed";
+                tempTextArea.style.top = "0";
+                tempTextArea.style.left = "0";
+                tempTextArea.style.opacity = "0";
+                document.body.appendChild(tempTextArea);
+                tempTextArea.focus();
+                tempTextArea.select();
+
+                try {
+                    const successful = document.execCommand('copy');
+                    if (successful) showSuccess();
+                    else alert("Please manually select and copy the text.");
+                } catch (err) {
+                    alert("Copying not supported on this browser.");
                 }
-                document.getElementById("results-section").style.display = "none";
-                document.getElementById("inventory-form").style.display = "block";
-                window.scrollTo(0, 0);
+
+                document.body.removeChild(tempTextArea);
             }
-        </script>
 
-    </body>
+            function showSuccess() {
+                btn.textContent = "Copied to Clipboard!";
+                setTimeout(() => { btn.textContent = "Copy to Clipboard"; }, 2000);
+            }
+        }
 
-    </html>
+        function resetForm() {
+            for (let i = 1; i <= 10; i++) {
+                try { localStorage.removeItem(`inventory_q${i}`); } catch (e) {}
+                document.getElementById(`q${i}`).value = "";
+            }
+            document.getElementById("results-section").style.display = "none";
+            document.getElementById("inventory-form").style.display = "block";
+            window.scrollTo(0, 0);
+        }
+    </script>
+
     <!-- Register Service Worker -->
     <script>
         if ('serviceWorker' in navigator) {
@@ -403,5 +311,4 @@
         }
     </script>
 </body>
-
 </html>
