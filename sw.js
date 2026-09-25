@@ -2,6 +2,7 @@ const CACHE_NAME = 'inventory-pwa-v1';
 const ASSETS_TO_CACHE = [
   './index.html',
   './manifest.json'
+  './pawappicon.png'
 ];
 
 // Install Event - Cache necessary core files
