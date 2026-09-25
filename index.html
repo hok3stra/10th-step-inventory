@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -19,25 +20,29 @@
             background-color: #f9f9f9;
             color: #333;
         }
+
         h1 {
             text-align: center;
             color: #2c3e50;
             border-bottom: 2px solid #2c3e50;
             padding-bottom: 10px;
         }
+
         .question-block {
             background: #ffffff;
             border-radius: 6px;
             padding: 15px 20px;
             margin-bottom: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
+
         label {
             font-weight: bold;
             color: #34495e;
             display: block;
             margin-bottom: 8px;
         }
+
         textarea {
             width: 100%;
             height: 80px;
@@ -49,6 +54,7 @@
             font-size: 14px;
             resize: vertical;
         }
+
         .btn {
             display: block;
             width: 100%;
@@ -62,34 +68,42 @@
             cursor: pointer;
             margin-top: 20px;
         }
+
         .btn:hover {
             background-color: #219150;
         }
+
         .copy-btn {
             background-color: #2980b9;
         }
+
         .copy-btn:hover {
             background-color: #1f6391;
         }
+
         .reset-btn {
             background-color: #e74c3c;
             margin-top: 10px;
         }
+
         .reset-btn:hover {
             background-color: #c0392b;
         }
+
         .inventory-item {
             background: #ffffff;
             border-radius: 6px;
             padding: 15px 20px;
             margin-bottom: 15px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
+
         .question {
             font-weight: bold;
             color: #34495e;
             margin-bottom: 8px;
         }
+
         .answer {
             color: #555;
             white-space: pre-wrap;
@@ -98,11 +112,13 @@
             border-left: 4px solid #3498db;
             border-radius: 4px;
         }
+
         #results-section {
             display: none;
         }
     </style>
 </head>
+
 <body>
 
     <h1>10 Step Inventory</h1>
@@ -120,7 +136,8 @@
         </div>
 
         <div class="question-block">
-            <label for="q3">3. Have we kept something to ourselves which should be discussed with another person at once?</label>
+            <label for="q3">3. Have we kept something to ourselves which should be discussed with another person at
+                once?</label>
             <textarea id="q3" placeholder="Type your response here..."></textarea>
         </div>
 
@@ -140,7 +157,8 @@
         </div>
 
         <div class="question-block">
-            <label for="q7">7. Or were we thinking what we could do for others, of what we could pack into the stream of life?</label>
+            <label for="q7">7. Or were we thinking what we could do for others, of what we could pack into the stream of
+                life?</label>
             <textarea id="q7" placeholder="Type your response here..."></textarea>
         </div>
 
@@ -187,7 +205,7 @@
 
         // Helper functions for safe LocalStorage
         function safeSetItem(key, value) {
-            try { localStorage.setItem(key, value); } catch (e) {}
+            try { localStorage.setItem(key, value); } catch (e) { }
         }
 
         function safeGetItem(key) {
@@ -291,7 +309,7 @@
 
         function resetForm() {
             for (let i = 1; i <= 10; i++) {
-                try { localStorage.removeItem(`inventory_q${i}`); } catch (e) {}
+                try { localStorage.removeItem(`inventory_q${i}`); } catch (e) { }
                 document.getElementById(`q${i}`).value = "";
             }
             document.getElementById("results-section").style.display = "none";
@@ -300,15 +318,32 @@
         }
     </script>
 
-    <!-- Register Service Worker -->
+    <!-- Register Service Worker with Auto-Reload for Updates -->
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js')
-                    .then((reg) => console.log('Service Worker registered successfully:', reg.scope))
-                    .catch((err) => console.log('Service Worker registration failed:', err));
+                navigator.serviceWorker.register('./sw.js').then((registration) => {
+                    console.log('Service Worker registered successfully:', registration.scope);
+
+                    // Listen for new service workers installing
+                    registration.onupdatefound = () => {
+                        const installingWorker = registration.installing;
+                        if (installingWorker) {
+                            installingWorker.onstatechange = () => {
+                                if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    // Automatically reloads the app when a new version is detected and installed
+                                    console.log('New content available; reloading app...');
+                                    window.location.reload();
+                                }
+                            };
+                        }
+                    };
+                }).catch((err) => {
+                    console.log('Service Worker registration failed:', err);
+                });
             });
         }
     </script>
 </body>
+
 </html>
