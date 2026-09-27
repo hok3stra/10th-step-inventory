@@ -5,12 +5,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>10 Step Inventory</title>
-
-    <!-- PWA Links -->
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#2c3e50">
-    <link rel="apple-touch-icon" href="./pawappicon.png">
-
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -79,6 +73,15 @@
 
         .copy-btn:hover {
             background-color: #1f6391;
+        }
+
+        .share-btn {
+            background-color: #8e44ad;
+            margin-top: 10px;
+        }
+
+        .share-btn:hover {
+            background-color: #71368a;
         }
 
         .reset-btn {
@@ -184,6 +187,7 @@
     <div id="results-section">
         <div id="results-list"></div>
         <button id="copy-btn" class="btn copy-btn" onclick="copyToClipboard()">Copy to Clipboard</button>
+        <button id="share-btn" class="btn share-btn" onclick="sendToSponsor()">Send to Sponsor</button>
         <button id="reset-btn" class="btn reset-btn" onclick="resetForm()">Start New Inventory</button>
     </div>
 
@@ -203,31 +207,78 @@
 
         let formattedPlainText = "";
 
-        // Helper functions for safe LocalStorage
-        function safeSetItem(key, value) {
-            try { localStorage.setItem(key, value); } catch (e) { }
+        // --- IN-MEMORY PRESERVATION CODE ---
+        const formData = {};
+
+        function preserveInMemory() {
+            for (let i = 1; i <= 10; i++) {
+                const el = document.getElementById(`q${i}`);
+                if (el) formData[`q${i}`] = el.value;
+            }
         }
 
+        function restoreFromMemory() {
+            for (let i = 1; i <= 10; i++) {
+                const el = document.getElementById(`q${i}`);
+                if (el && formData[`q${i}`] !== undefined) {
+                    el.value = formData[`q${i}`];
+                }
+            }
+        }
+
+        // Save input values as the user types
+        window.addEventListener('DOMContentLoaded', () => {
+            for (let i = 1; i <= 10; i++) {
+                const textarea = document.getElementById(`q${i}`);
+                textarea.addEventListener('input', preserveInMemory);
+            }
+        });
+
+        // Restore values if screen changes orientation or resizes
+        window.addEventListener('resize', preserveInMemory);
+        window.matchMedia("(orientation: portrait)").addEventListener("change", restoreFromMemory);
+        window.matchMedia("(orientation: landscape)").addEventListener("change", restoreFromMemory);
+        // ------------------------------------------------
+
+        // Helper to safely write to storage without crashing in Private/Incognito Mode
+        function safeSetItem(key, value) {
+            try {
+                localStorage.setItem(key, value);
+            } catch (e) {
+                console.warn('localStorage is unavailable or restricted:', e);
+            }
+        }
+
+        // Helper to safely read from storage
         function safeGetItem(key) {
-            try { return localStorage.getItem(key); } catch (e) { return null; }
+            try {
+                return localStorage.getItem(key);
+            } catch (e) {
+                return null;
+            }
         }
 
         function restoreAnswers() {
             for (let i = 1; i <= 10; i++) {
                 const textarea = document.getElementById(`q${i}`);
                 const savedValue = safeGetItem(`inventory_q${i}`);
+
                 if (savedValue !== null) {
                     textarea.value = savedValue;
                 }
+
+                // Remove old listeners before adding to prevent duplicates
                 textarea.removeEventListener('input', saveHandler);
                 textarea.addEventListener('input', saveHandler);
             }
         }
 
         function saveHandler(e) {
-            safeSetItem(`inventory_${e.target.id}`, e.target.value);
+            const id = e.target.id;
+            safeSetItem(`inventory_${id}`, e.target.value);
         }
 
+        // 'pageshow' handles iOS Safari back-forward cache and orientation re-renders better than DOMContentLoaded alone
         window.addEventListener('pageshow', restoreAnswers);
         window.addEventListener('DOMContentLoaded', restoreAnswers);
 
@@ -282,18 +333,23 @@
             function fallbackCopy() {
                 const tempTextArea = document.createElement("textarea");
                 tempTextArea.value = formattedPlainText;
+
                 tempTextArea.style.position = "fixed";
                 tempTextArea.style.top = "0";
                 tempTextArea.style.left = "0";
                 tempTextArea.style.opacity = "0";
+
                 document.body.appendChild(tempTextArea);
                 tempTextArea.focus();
                 tempTextArea.select();
 
                 try {
                     const successful = document.execCommand('copy');
-                    if (successful) showSuccess();
-                    else alert("Please manually select and copy the text.");
+                    if (successful) {
+                        showSuccess();
+                    } else {
+                        alert("Please manually select and copy the text.");
+                    }
                 } catch (err) {
                     alert("Copying not supported on this browser.");
                 }
@@ -303,13 +359,35 @@
 
             function showSuccess() {
                 btn.textContent = "Copied to Clipboard!";
-                setTimeout(() => { btn.textContent = "Copy to Clipboard"; }, 2000);
+                setTimeout(() => {
+                    btn.textContent = "Copy to Clipboard";
+                }, 2000);
+            }
+        }
+
+        async function sendToSponsor() {
+            if (navigator.share) {
+                try {
+                    await navigator.share({
+                        title: '10th Step Inventory',
+                        text: formattedPlainText
+                    });
+                } catch (err) {
+                    if (err.name !== 'AbortError') {
+                        console.error('Error sharing:', err);
+                    }
+                }
+            } else {
+                copyToClipboard();
+                alert('Sharing directly to contacts is not supported on this browser. The inventory has been copied to your clipboard instead!');
             }
         }
 
         function resetForm() {
             for (let i = 1; i <= 10; i++) {
-                try { localStorage.removeItem(`inventory_q${i}`); } catch (e) { }
+                try {
+                    localStorage.removeItem(`inventory_q${i}`);
+                } catch (e) { }
                 document.getElementById(`q${i}`).value = "";
             }
             document.getElementById("results-section").style.display = "none";
@@ -318,32 +396,6 @@
         }
     </script>
 
-    <!-- Register Service Worker with Auto-Reload for Updates -->
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js').then((registration) => {
-                    console.log('Service Worker registered successfully:', registration.scope);
-
-                    // Listen for new service workers installing
-                    registration.onupdatefound = () => {
-                        const installingWorker = registration.installing;
-                        if (installingWorker) {
-                            installingWorker.onstatechange = () => {
-                                if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                    // Automatically reloads the app when a new version is detected and installed
-                                    console.log('New content available; reloading app...');
-                                    window.location.reload();
-                                }
-                            };
-                        }
-                    };
-                }).catch((err) => {
-                    console.log('Service Worker registration failed:', err);
-                });
-            });
-        }
-    </script>
 </body>
 
 </html>
