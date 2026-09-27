@@ -230,17 +230,16 @@
         window.addEventListener('DOMContentLoaded', () => {
             for (let i = 1; i <= 10; i++) {
                 const textarea = document.getElementById(`q${i}`);
-                textarea.addEventListener('input', preserveInMemory);
+                if (textarea) {
+                    textarea.addEventListener('input', preserveInMemory);
+                }
             }
         });
 
-        // Restore values if screen changes orientation or resizes
-        window.addEventListener('resize', preserveInMemory);
-        window.matchMedia("(orientation: portrait)").addEventListener("change", restoreFromMemory);
-        window.matchMedia("(orientation: landscape)").addEventListener("change", restoreFromMemory);
+        // Restore values on orientation change only
+        window.addEventListener('orientationchange', restoreFromMemory);
         // ------------------------------------------------
 
-        // Helper to safely write to storage without crashing in Private/Incognito Mode
         function safeSetItem(key, value) {
             try {
                 localStorage.setItem(key, value);
@@ -249,7 +248,6 @@
             }
         }
 
-        // Helper to safely read from storage
         function safeGetItem(key) {
             try {
                 return localStorage.getItem(key);
@@ -263,13 +261,14 @@
                 const textarea = document.getElementById(`q${i}`);
                 const savedValue = safeGetItem(`inventory_q${i}`);
 
-                if (savedValue !== null) {
+                if (savedValue !== null && textarea) {
                     textarea.value = savedValue;
                 }
 
-                // Remove old listeners before adding to prevent duplicates
-                textarea.removeEventListener('input', saveHandler);
-                textarea.addEventListener('input', saveHandler);
+                if (textarea) {
+                    textarea.removeEventListener('input', saveHandler);
+                    textarea.addEventListener('input', saveHandler);
+                }
             }
         }
 
@@ -278,7 +277,6 @@
             safeSetItem(`inventory_${id}`, e.target.value);
         }
 
-        // 'pageshow' handles iOS Safari back-forward cache and orientation re-renders better than DOMContentLoaded alone
         window.addEventListener('pageshow', restoreAnswers);
         window.addEventListener('DOMContentLoaded', restoreAnswers);
 
@@ -388,7 +386,8 @@
                 try {
                     localStorage.removeItem(`inventory_q${i}`);
                 } catch (e) { }
-                document.getElementById(`q${i}`).value = "";
+                const el = document.getElementById(`q${i}`);
+                if (el) el.value = "";
             }
             document.getElementById("results-section").style.display = "none";
             document.getElementById("inventory-form").style.display = "block";
